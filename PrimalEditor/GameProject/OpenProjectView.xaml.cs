@@ -13,14 +13,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace PrimalEditor.GameProject1
+namespace PrimalEditor.GameProject
 {
     /// <summary>
-    /// NewProjectView.xaml에 대한 상호 작용 논리
+    /// OpenProjectView.xaml에 대한 상호 작용 논리
     /// </summary>
-    public partial class NewProjectView : UserControl
+    public partial class OpenProjectView : UserControl
     {
-        public NewProjectView()
+        public OpenProjectView()
         {
             InitializeComponent();
         }

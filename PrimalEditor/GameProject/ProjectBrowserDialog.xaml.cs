@@ -12,7 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
-namespace PrimalEditor.GameProject1
+namespace PrimalEditor.GameProject
 {
     /// <summary>
     /// ProjectBrowserDialog.xaml에 대한 상호 작용 논리
