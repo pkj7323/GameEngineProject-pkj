@@ -22,32 +22,35 @@ public partial class MainWindow : Window
 	{
 		InitializeComponent();
 		Loaded += OnMainWindwLoaded;
-        Closing += OnMainWindowClosing;
-    }
+		Closing += OnMainWindowClosing;
+	}
 
-    
+	
 
-    private void OnMainWindwLoaded(object sender, RoutedEventArgs e)
+	private void OnMainWindwLoaded(object sender, RoutedEventArgs e)
 	{
 		Loaded -= OnMainWindwLoaded;
 		OpenProjectBrowserDialog();
 	}
-    private void OnMainWindowClosing(object? sender, CancelEventArgs e)
-    {
-        Closing -= OnMainWindowClosing;
-        Project.Current?.Unload();
-    }
-    private void OpenProjectBrowserDialog()
+	private void OnMainWindowClosing(object? sender, CancelEventArgs e)
 	{
-	   var projectBrowser = new ProjectBrowserDialog();
-	   if(projectBrowser.ShowDialog() == false || projectBrowser.DataContext == null)
+		Closing -= OnMainWindowClosing;
+		Project.Current?.Unload();
+	}
+	private void OpenProjectBrowserDialog()
+	{
+		var projectBrowser = new ProjectBrowserDialog
+		{
+			Owner = this,
+		};
+		if (projectBrowser.ShowDialog() == false || projectBrowser.DataContext == null)
 		{
 			Application.Current.Shutdown();
-        }
+		}
 		else
 		{
 			Project.Current?.Unload();
-            DataContext = projectBrowser.DataContext;
-        }
-    }
+			DataContext = projectBrowser.DataContext;
+		}
+	}
 }
