@@ -13,20 +13,16 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace PrimalEditor.Editors
+namespace PrimalEditor.Utilities
 {
     /// <summary>
-    /// GameEntityView.xaml에 대한 상호 작용 논리
+    /// LoggerView.xaml에 대한 상호 작용 논리
     /// </summary>
-    public partial class GameEntityView : UserControl
+    public partial class LoggerView : UserControl
     {
-        public static GameEntityView Instance { get; private set; }
-        public GameEntityView()
+        public LoggerView()
         {
             InitializeComponent();
-            DataContext = null;
-            Instance = this;
-            
         }
     }
 }

@@ -66,11 +66,16 @@ namespace PrimalEditor.GameProject
 			Debug.Assert(File.Exists(file));
 			return Serializer.FromFile<Project>(file);
 		}
-		public void Unload() { }
+		public void Unload() 
+		{
+            UndoRedo.Reset();
+
+        }
 		public static void Save(Project project)
 		{
 			Serializer.ToFile(project, project.FullPath);
-		}
+			Logger.Log(MessageType.Info, $"Project {project.Name} saved to {project.FullPath}");
+        }
 
 		[OnDeserialized]
 		private void OnDeserialized(StreamingContext context)

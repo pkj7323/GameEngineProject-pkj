@@ -32,7 +32,7 @@
 										<TextBlock Text="{Binding Name}"/>
                                         <Button Content="Delete" Width="96" 
                                                 Command ="{Binding DataContext.RemoveSceneCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-												CommandParameter="{Binding}" Margin ="20,0" Focusable="False"	
+												CommandParameter="{Binding}" Margin ="20,0,0,0" Focusable="False"	
                                                 HorizontalAlignment="Right"/>
                                         <Button Content="+" IsEnabled="{Binding IsActive}"
                                                 Click="OnAddGameEntity_Button_Click"/>
@@ -45,7 +45,7 @@
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="{Binding Name}"/>
-                                            <Button Content="Delete" Width="96" 
+                                            <Button Content="Delete" Width="96" Margin="10,0,0,0"
 													Command ="{Binding ParentScene.RemoveGameEntityCommand}"
 													CommandParameter="{Binding}" />
                                         </StackPanel>
