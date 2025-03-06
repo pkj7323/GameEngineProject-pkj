@@ -34,11 +34,11 @@
 				<GridSplitter Grid.Row="1" Height="5" HorizontalAlignment="Stretch"
 							  VerticalAlignment="Top"/>
                 <TabControl Grid.Row="1">
-                    <TabItem>
+                    <TabItem Header="History">
 						<utl:UndoRedoView DataContext="{Binding UndoRedo}" Grid.Row="1"/>
                     </TabItem>
-                    <TabItem>
-                        <utl:LoggerView DataContext="{Binding Logger}"/>
+                    <TabItem Header="Log">
+                        <utl:LoggerView />
                     </TabItem>
                 </TabControl>
             </Grid>

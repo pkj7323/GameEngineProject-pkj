@@ -23,6 +23,35 @@ namespace PrimalEditor.Utilities
         public LoggerView()
         {
             InitializeComponent();
+            Loaded += (s, e) =>
+            {
+                Logger.Log(MessageType.Info, "정보 메세지");
+                Logger.Log(MessageType.Warning, "경고 메세지");
+                Logger.Log(MessageType.Error, "에러 메세지");
+            }; 
         }
+
+        private void OnClear_Button_Click(object sender, RoutedEventArgs e)
+        {
+            Logger.Clear();
+        }
+        private void OnMessageFilter_Button_Click(object sender, RoutedEventArgs e)
+        {
+            var filter = 0x0;
+            if (toggleInfo.IsChecked == true)
+            {
+                filter |= (int)MessageType.Info;
+            }
+            if (toggleWarnings.IsChecked == true)
+            {
+                filter |= (int)MessageType.Warning;
+            }
+            if (toggleError.IsChecked == true)
+            {
+                filter |= (int)MessageType.Error;
+            }
+            Logger.SetMessageFilter(filter);
+        }
+
     }
 }
