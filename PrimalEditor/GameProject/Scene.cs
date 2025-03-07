@@ -13,7 +13,7 @@ using System.Windows.Input;
 namespace PrimalEditor.GameProject
 {
 	[DataContract]
-	class Scene : ViewModelBase
+	public class Scene : ViewModelBase
 	{
 
 		private string _name;

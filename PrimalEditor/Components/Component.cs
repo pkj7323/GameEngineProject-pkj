@@ -8,27 +8,13 @@ using System.Threading.Tasks;
 
 namespace PrimalEditor.Components
 {
-    interface IMSComponent
-    {
-
-    }
     [DataContract]
-    abstract class Component : ViewModelBase
+    public class Component : ViewModelBase
     {
         [DataMember]
         public GameEntity Owner { get; private set; }
 
         public Component(GameEntity owner)
-        {
-            Debug.Assert(owner != null);
-            Owner = owner;
-        }
-    }
-
-    abstract class MSComponent<T> : ViewModelBase, IMSComponent where T : GameEntity
-    {
-        public T Owner { get; private set; }
-        public MSComponent(T owner)
         {
             Debug.Assert(owner != null);
             Owner = owner;

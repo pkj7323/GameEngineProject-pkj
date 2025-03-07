@@ -174,9 +174,7 @@ namespace PrimalEditor.GameProject
             catch (Exception e)
 			{
 				Debug.WriteLine(e.Message);
-                Logger.Log(MessageType.Error, $"{ProjectName} 만들기 실패");
-                throw;
-                
+				return string.Empty;
             }
         }
 
@@ -194,7 +192,7 @@ namespace PrimalEditor.GameProject
 					template.Icon = File.ReadAllBytes(template.IconFilePath);
 					template.ScreenShotFilePath = System.IO.Path.GetFullPath(Path.Combine(Path.GetDirectoryName(file), "ScreenShot.png"));
 					template.ScreenShot = File.ReadAllBytes(template.ScreenShotFilePath);
-                    template.ProjectFilePath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(file), template.ProjectFile));
+					template.ProjectFilePath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(file), template.ProjectFile));
 
 
 
@@ -205,9 +203,8 @@ namespace PrimalEditor.GameProject
 			catch (Exception e)
 			{
 				Debug.WriteLine(e.Message);
-                Logger.Log(MessageType.Error, $"프로젝트 템플릿 읽기 오류");
-                throw;
-            }
+				// TODO: log error
+			}
 		}
 	}
 }

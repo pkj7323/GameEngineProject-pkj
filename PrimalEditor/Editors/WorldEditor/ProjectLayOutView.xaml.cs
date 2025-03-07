@@ -38,9 +38,12 @@ namespace PrimalEditor.Editors
 		private void OnGameEntites_ListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
 
-			
+			GameEntityView.Instance.DataContext = null;
 			var listBox = sender as ListBox;
-            
+            if (e.AddedItems.Count > 0)
+            {
+                GameEntityView.Instance.DataContext = listBox.SelectedItems[0];
+            }
 			var newSelection = listBox.SelectedItems.Cast<GameEntity>().ToList();
 			var prevSelection = newSelection.Except(e.AddedItems.Cast<GameEntity>()).Concat(e.RemovedItems.Cast<GameEntity>()).ToList();
 
@@ -56,13 +59,6 @@ namespace PrimalEditor.Editors
                     newSelection.ForEach(x => (listBox.ItemContainerGenerator.ContainerFromItem(x) as ListBoxItem).IsSelected = true);
                 }
 			));
-
-			MSGameEntity msGameEntity = null;
-            if (newSelection.Any())
-			{
-                msGameEntity = new MSGameEntity(newSelection);
-            }
-			GameEntityView.Instance.DataContext = msGameEntity;
 
 
         }

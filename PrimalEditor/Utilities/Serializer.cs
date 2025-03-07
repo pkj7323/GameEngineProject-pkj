@@ -23,8 +23,6 @@ namespace PrimalEditor.Utilities
             catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message);
-                Logger.Log(MessageType.Error, $"직렬화 실패 경로: {instance} to {path}");
-                throw;
             }
         }
 
@@ -40,8 +38,7 @@ namespace PrimalEditor.Utilities
             catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message);
-                Logger.Log(MessageType.Error, $"역직렬화 실패 경로: {path}");
-                throw;
+                return default(T);
             }
         }
     }

@@ -8,7 +8,6 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Shapes;
 
 namespace PrimalEditor.GameProject
 {
@@ -100,8 +99,6 @@ namespace PrimalEditor.GameProject
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
-                Logger.Log(MessageType.Error, $"프로젝트 데이터 읽기 실패 ");
-                throw;
             }
         }
     }

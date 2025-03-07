@@ -65,7 +65,7 @@ namespace PrimalEditor.Utilities
                 _logMessages.Clear();
             }));
         }
-        public static void SetMessageFilter(int mask)
+        public static void SetMessage(int mask)
         {
             _messageFilter = mask;
             FilteredMessage.View.Refresh();

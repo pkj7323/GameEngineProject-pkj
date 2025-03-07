@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace PrimalEditor.Components
 {
     [DataContract]
-    class Transform : Component
+    public class Transform : Component
     {
         private Vector3 _position;
         [DataMember]
