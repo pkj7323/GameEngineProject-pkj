@@ -43,7 +43,7 @@ namespace primal::game_entity
 			generations.push_back(0);
 
 			// Resize components
-			// Note: 이렇게 하면 미리 메모리를 할당해놓기 때문에 메모리를 할당하는데 드는 비용이 줄어든다.
+			// Note: 우리는 resize를 안하기 때문에 크기낭비를 줄일수 있음
 			transforms.emplace_back();
 		}
 		const entity new_entity{ id };

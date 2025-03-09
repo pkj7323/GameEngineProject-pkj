@@ -32,12 +32,10 @@ namespace PrimalEditor.GameProject
 	}
 	class NewProject : ViewModelBase
 	{
-		//TODO: 설치된 위치 경로를 가져와야함
-		// 현재 작업 디렉토리에서 네 번 상위 디렉토리로 이동한 후 PrimalEditor\ProjectTemplates 경로를 설정
-		private readonly string _templatePath = Path.Combine(
-			Directory.GetParent(Directory.GetParent(Directory.GetParent(Directory.GetParent(Directory.GetCurrentDirectory()).FullName).FullName).FullName).FullName,
-			"PrimalEditor", "ProjectTemplates");
-		private string _projectName = "NewProject";
+        // TODO: 설치된 위치 경로를 가져와야함
+        // 현재 작업 디렉토리를	가져옴
+        private readonly string _templatePath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), @"..\..\PrimalEditor\ProjectTemplates"));
+        private string _projectName = "NewProject";
 		public string ProjectName
 		{
 			get => _projectName;

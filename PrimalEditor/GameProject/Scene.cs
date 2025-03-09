@@ -57,14 +57,24 @@ namespace PrimalEditor.GameProject
         public ICommand AddGameEntityCommand { get; set; }
         public ICommand RemoveGameEntityCommand { get; set; }
 
-        private void AddGameEntity(GameEntity gameEntity)
+        private void AddGameEntity(GameEntity gameEntity, int index = -1)
         {
             Debug.Assert(!_gameEntities.Contains(gameEntity));
+			gameEntity.IsActive = IsActive;
+            if (index == -1)
+            {
+				_gameEntities.Add(gameEntity);
+            }
+			else
+			{
+                _gameEntities.Insert(index, gameEntity);
+            }
             _gameEntities.Add(gameEntity);
         }
 		private void RemoveGameEntity(GameEntity gameEntity)
         {
             Debug.Assert(_gameEntities.Contains(gameEntity));
+			gameEntity.IsActive = false;
             _gameEntities.Remove(gameEntity);
         }
 
@@ -78,17 +88,20 @@ namespace PrimalEditor.GameProject
 				GameEntities = new ReadOnlyObservableCollection<GameEntity>(_gameEntities);
 				OnPropertyChanged(nameof(GameEntities));
 			}
-			
+            foreach (var entity in _gameEntities)
+            {
+                entity.IsActive = IsActive;
+            }
 
-			AddGameEntityCommand = new RelayCommand<GameEntity>(x =>
+            AddGameEntityCommand = new RelayCommand<GameEntity>(x =>
 			{
 				AddGameEntity(x);
 				var entityIndex = _gameEntities.Count - 1;
 
 				Project.UndoRedo.Add(new UndoRedoAction($"Add {x.Name} to {Name}",
 					() => RemoveGameEntity(x),
-					() => _gameEntities.Insert(entityIndex, x)
-					));
+					() => AddGameEntity(x, entityIndex)
+                    ));
 			});
 
 			RemoveGameEntityCommand = new RelayCommand<GameEntity>(x =>
@@ -96,7 +109,7 @@ namespace PrimalEditor.GameProject
                 var entityIndex = _gameEntities.IndexOf(x);
                 RemoveGameEntity(x);
 				Project.UndoRedo.Add(new UndoRedoAction($"Remove {x.Name}",
-					() => _gameEntities.Insert(entityIndex, x),
+					() => AddGameEntity(x, entityIndex),
 					() => RemoveGameEntity(x)
 					));
 			});
