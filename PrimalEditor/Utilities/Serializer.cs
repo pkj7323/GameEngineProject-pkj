@@ -23,6 +23,8 @@ namespace PrimalEditor.Utilities
             catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message);
+                Logger.Log(MessageType.Error, $"직렬화 실패 : {instance} to {path}");
+                throw;
             }
         }
 
@@ -38,7 +40,8 @@ namespace PrimalEditor.Utilities
             catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message);
-                return default(T);
+                Logger.Log(MessageType.Error, $"역직렬화 실패 : {path}");
+                throw;
             }
         }
     }

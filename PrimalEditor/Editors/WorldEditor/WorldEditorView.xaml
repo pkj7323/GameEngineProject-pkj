@@ -34,25 +34,25 @@
 				<GridSplitter Grid.Row="1" Height="5" HorizontalAlignment="Stretch"
 							  VerticalAlignment="Top"/>
                 <TabControl Grid.Row="1">
-                    <TabItem>
+                    <TabItem Header="History">
 						<utl:UndoRedoView DataContext="{Binding UndoRedo}" Grid.Row="1"/>
                     </TabItem>
-                    <TabItem>
-                        <utl:LoggerView/>
+                    <TabItem Header="Log">
+                        <utl:LoggerView />
                     </TabItem>
                 </TabControl>
             </Grid>
-			<GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Left" 
-						  VerticalAlignment="Stretch"/>
-			<Grid Grid.Column="1" Margin="5,0,0,0">
-				<Grid.RowDefinitions>
-					<RowDefinition/>
-					<RowDefinition/>
-				</Grid.RowDefinitions>
-				<GridSplitter Grid.Row="1" Height="5" HorizontalAlignment="Stretch"
-							  VerticalAlignment="Top"/>
-				<local:ProjectLayOutView />
-                <local:GameEntityView Grid.Row="1"/>
+	        <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Left" 
+	                      VerticalAlignment="Stretch"/>
+	        <Grid Grid.Column="1" Margin="5,0,0,0">
+		        <Grid.RowDefinitions>
+			        <RowDefinition/>
+			        <RowDefinition/>
+		        </Grid.RowDefinitions>
+		        <GridSplitter Grid.Row="1" Height="5" HorizontalAlignment="Stretch"
+		                      VerticalAlignment="Top"/>
+		        <local:ProjectLayOutView />
+		        <local:GameEntityView Grid.Row="1"/>
             </Grid>
 		</Grid>
 	</Grid>

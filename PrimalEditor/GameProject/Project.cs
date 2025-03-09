@@ -14,7 +14,7 @@ using System.Windows.Input;
 namespace PrimalEditor.GameProject
 {
 	[DataContract(Name ="Game")]//게임이란 이름으로 저장 할거임
-	public class Project : ViewModelBase
+	class Project : ViewModelBase
 	{
 		public static string Extension { get; } = ".primal";
 		[DataMember]

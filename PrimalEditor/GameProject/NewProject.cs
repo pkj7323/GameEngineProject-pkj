@@ -174,7 +174,8 @@ namespace PrimalEditor.GameProject
             catch (Exception e)
 			{
 				Debug.WriteLine(e.Message);
-				return string.Empty;
+				Logger.Log(MessageType.Error, $"{ProjectName} 만들기 실패");
+				throw;
             }
         }
 
@@ -203,8 +204,9 @@ namespace PrimalEditor.GameProject
 			catch (Exception e)
 			{
 				Debug.WriteLine(e.Message);
-				// TODO: log error
-			}
+                Logger.Log(MessageType.Error, $"프로젝트 템플릿 읽기 오류");
+                throw;
+            }
 		}
 	}
 }
