@@ -38,7 +38,7 @@
 						<utl:UndoRedoView DataContext="{Binding UndoRedo}" Grid.Row="1"/>
                     </TabItem>
                     <TabItem>
-                        <utl:LoggerView DataContext="{Binding Logger}"/>
+                        <utl:LoggerView/>
                     </TabItem>
                 </TabControl>
             </Grid>
