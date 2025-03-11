@@ -43,7 +43,7 @@ namespace PrimalEditor.Utilities
                 filter |= (int)MessageType.Info;
             if (toggleWarnings.IsChecked == true)
                 filter |= (int)MessageType.Warning;
-            if (toggleError.IsChecked == true)
+            if (toggleErrors.IsChecked == true)
                 filter |= (int)MessageType.Error;
 
             Logger.SetMessageFilter(filter);

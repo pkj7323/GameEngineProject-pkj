@@ -69,7 +69,6 @@ namespace PrimalEditor.GameProject
 			{
                 _gameEntities.Insert(index, gameEntity);
             }
-            _gameEntities.Add(gameEntity);
         }
 		private void RemoveGameEntity(GameEntity gameEntity)
         {
