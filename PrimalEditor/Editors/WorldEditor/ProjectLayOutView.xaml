@@ -29,8 +29,8 @@
 							<Expander.Header>
 								<Grid>
                                     <StackPanel Orientation="Horizontal">
-										<TextBlock Text="{Binding Name}"/>
-                                        <Button Content="Delete" Width="96" 
+	                                    <TextBlock Text="{Binding Name}" Style="{StaticResource LightTextBlockStyle}"/>
+                                        <Button Content="Remove" Width="96" 
                                                 Command ="{Binding DataContext.RemoveSceneCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
 												CommandParameter="{Binding}" Margin ="20,0,0,0" Focusable="False"	
                                                 HorizontalAlignment="Right"/>
