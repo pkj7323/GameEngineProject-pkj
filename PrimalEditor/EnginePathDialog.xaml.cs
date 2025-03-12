@@ -42,7 +42,7 @@ namespace PrimalEditor
             else if (!Directory.Exists(Path.Combine(path,@"Engine\EngineAPI\")))
             {
 
-                messageTextBlock.Text = "Engine이 없습니다.";
+                messageTextBlock.Text = "Engine폴더 또는 Engine\\EngineAPI\\폴더가 없습니다.";
             }
             if (string.IsNullOrWhiteSpace(messageTextBlock.Text))
             {
