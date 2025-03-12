@@ -1,5 +1,6 @@
 ﻿using PrimalEditor.GameProject;
 using System.ComponentModel;
+using System.IO;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -9,7 +10,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
-using System.Windows.Shapes;
+
 
 namespace PrimalEditor;
 
@@ -18,7 +19,10 @@ namespace PrimalEditor;
 /// </summary>
 public partial class MainWindow : Window
 {
-	public MainWindow()
+	//일단 엔진 개발중이니까 어디에 설치 할지 모르는 상태임 일단 자기 디렉토리로 설정할것
+	public static string PrimalPath { get; private set; } = @"C:\Users\MSI\source\repos\pkj7323\GameEngineProject-pkj";
+
+    public MainWindow()
 	{
 		InitializeComponent();
 		Loaded += OnMainWindwLoaded;
@@ -30,9 +34,33 @@ public partial class MainWindow : Window
 	private void OnMainWindwLoaded(object sender, RoutedEventArgs e)
 	{
 		Loaded -= OnMainWindwLoaded;
+        GetEnginePath();
 		OpenProjectBrowserDialog();
 	}
-	private void OnMainWindowClosing(object? sender, CancelEventArgs e)
+
+    private void GetEnginePath()
+    {
+		var primalPath = Environment.GetEnvironmentVariable("PRIMAL_ENGINE", EnvironmentVariableTarget.User);
+		if (primalPath == null || !Directory.Exists(Path.Combine(primalPath, @"Engine\EngineAPI")))
+		{
+			var dlg = new EnginePathDialog();
+            if (dlg.ShowDialog() == true)
+            {
+                primalPath = dlg.PrimalPath;
+                Environment.SetEnvironmentVariable("PRIMAL_ENGINE", primalPath.ToUpper(), EnvironmentVariableTarget.User);
+            }
+			else
+			{
+				Application.Current.Shutdown();
+            }
+        }
+		else
+		{
+			PrimalPath = primalPath;
+        }
+    }
+
+    private void OnMainWindowClosing(object? sender, CancelEventArgs e)
 	{
 		Closing -= OnMainWindowClosing;
 		Project.Current?.Unload();
