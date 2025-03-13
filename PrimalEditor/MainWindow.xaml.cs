@@ -19,8 +19,7 @@ namespace PrimalEditor;
 /// </summary>
 public partial class MainWindow : Window
 {
-	//일단 엔진 개발중이니까 어디에 설치 할지 모르는 상태임 일단 자기 디렉토리로 설정할것
-	public static string PrimalPath { get; private set; } = @"C:\Users\MSI\source\repos\pkj7323\GameEngineProject-pkj";
+    public static string PrimalPath { get; private set; }
 
     public MainWindow()
 	{

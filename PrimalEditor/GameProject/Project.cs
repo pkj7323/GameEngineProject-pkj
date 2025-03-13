@@ -1,4 +1,5 @@
 ﻿using PrimalEditor.Utilities;
+using PrimalEditor.DllWrappers;
 using PrimalEditor.GameDev;
 using System;
 using System.Collections.Generic;
@@ -11,10 +12,20 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using PrimalEditor.DllWrappers;
+using System.Xml.Serialization;
 
 namespace PrimalEditor.GameProject
 {
-	[DataContract(Name ="Game")]//게임이란 이름으로 저장 할거임
+    enum BuildConfiguration
+    {
+        Debug,
+        DebugEditor,
+        Release,
+        ReleaseEditor,
+    }
+
+    [DataContract(Name ="Game")]//게임이란 이름으로 저장 할거임
 	class Project : ViewModelBase
 	{
 		public static string Extension { get; } = ".primal";
@@ -24,6 +35,31 @@ namespace PrimalEditor.GameProject
 		public string Path { get; private set; }
 		public string FullPath => $@"{Path}{Name}{Extension}";
 		public string Solution => $@"{Path}{Name}.sln";
+
+        private static readonly string[] _buildConfigurationNames = 
+			new string[] { "Debug", "DebugEditor", "Release", "ReleaseEditor" };
+
+        private int _buildConfig;
+        [DataMember]
+        public int BuildConfig
+        {
+            get => _buildConfig;
+            set
+            {
+                if (_buildConfig != value)
+                {
+                    _buildConfig = value;
+                    OnPropertyChanged(nameof(BuildConfig));
+                }
+            }
+        }
+
+        public BuildConfiguration StandAloneBuildConfig 
+			=> BuildConfig == 0 ? BuildConfiguration.Debug : BuildConfiguration.Release;
+        public BuildConfiguration DllBuildConfig 
+			=> BuildConfig == 0 ? BuildConfiguration.DebugEditor : BuildConfiguration.ReleaseEditor;
+
+
         [DataMember(Name = "Scenes")]
 		private ObservableCollection<Scene> _scenes = new ObservableCollection<Scene>();
 		public ReadOnlyObservableCollection<Scene> Scenes { get; private set; }
@@ -42,6 +78,7 @@ namespace PrimalEditor.GameProject
 			}
 		}
 
+        public static Project Current => Application.Current.MainWindow.DataContext as Project;
 		public static UndoRedo UndoRedo { get; } = new UndoRedo();
 
 		public ICommand AddSceneCommand { get; private set; }
@@ -49,8 +86,46 @@ namespace PrimalEditor.GameProject
 		public ICommand UndoCommand { get; private set; }
 		public ICommand RedoCommand { get; private set; }
 		public ICommand SaveCommand { get; private set; }
+        public ICommand BuildCommand { get; private set; }
 
-		public static Project Current => Application.Current.MainWindow.DataContext as Project;
+        private void SetCommands()
+        {
+            AddSceneCommand = new RelayCommand<object>(x =>
+            {
+                AddScene($"New Scene {_scenes.Count}");
+                var newScene = _scenes.Last();
+                var sceneIndex = _scenes.Count - 1;
+
+                UndoRedo.Add(new UndoRedoAction($"Add {newScene.Name}",
+                    () => RemoveScene(newScene),
+                    () => _scenes.Insert(sceneIndex, newScene)
+                   ));
+            });
+
+            RemoveSceneCommand = new RelayCommand<Scene>(x =>
+            {
+                var sceneIndex = _scenes.IndexOf(x);
+                RemoveScene(x);
+
+                UndoRedo.Add(new UndoRedoAction($"Remove {x.Name}",
+                    () => _scenes.Insert(sceneIndex, x),
+                    () => RemoveScene(x)
+                    ));
+            }, x => !x.IsActive);
+
+            UndoCommand = new RelayCommand<object>(x => UndoRedo.Undo(), x => UndoRedo.UndoList.Any());
+            RedoCommand = new RelayCommand<object>(x => UndoRedo.Redo(), x => UndoRedo.RedoList.Any());
+            SaveCommand = new RelayCommand<object>(x => Save(this));
+            BuildCommand = new RelayCommand<bool>(async x => await BuildGameCodeDll(x), x => !VisualStudio.IsDebugging() && VisualStudio.BuildDone);
+
+            OnPropertyChanged(nameof(AddSceneCommand));
+            OnPropertyChanged(nameof(RemoveSceneCommand));
+            OnPropertyChanged(nameof(UndoCommand));
+            OnPropertyChanged(nameof(RedoCommand));
+            OnPropertyChanged(nameof(SaveCommand));
+            OnPropertyChanged(nameof(BuildCommand));
+        }
+        private static string GetConfigurationName(BuildConfiguration config) => _buildConfigurationNames[(int)config];
 
 		private void AddScene(string sceneName)
 		{
@@ -79,46 +154,66 @@ namespace PrimalEditor.GameProject
 			Logger.Log(MessageType.Info, $"Project {project.Name} saved to {project.FullPath}");
         }
 
-		[OnDeserialized]
-		private void OnDeserialized(StreamingContext context)
-		{
-			if (_scenes != null)
-			{
-				Scenes = new ReadOnlyObservableCollection<Scene>(_scenes);
-				OnPropertyChanged(nameof(Scenes)); 
-			}
-			ActiveScene = Scenes.FirstOrDefault(x => x.IsActive);
 
-			AddSceneCommand = new RelayCommand<object>(x =>
-			{
-				AddScene($"New Scene{_scenes.Count}");
-				var newScene = _scenes.Last();
-				var sceneIndex = _scenes.Count - 1;
-				
-				UndoRedo.Add(new UndoRedoAction($"Add {newScene.Name}",
-					() => RemoveScene(newScene),
-					() => _scenes.Insert(sceneIndex, newScene)
-					)); 
-			});
-            RemoveSceneCommand = new RelayCommand<Scene>(x =>
+        private async Task BuildGameCodeDll(bool showWindow = true)
+        {
+            try
             {
-                var sceneIndex = _scenes.IndexOf(x);
-                RemoveScene(x);
-                UndoRedo.Add(new UndoRedoAction($"Remove {x.Name}",
-                    () => _scenes.Insert(sceneIndex, x),
-                    () => RemoveScene(x)
-                    ));
-            }, x => !x.IsActive);
+                UnloadGameCodeDll();
+                await Task.Run(() => VisualStudio.BuildSolution(this, GetConfigurationName(DllBuildConfig), showWindow));
+                if (VisualStudio.BuildSucceeded)
+                {
+                    LoadGameCodeDll();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                throw;
+            }
+        }
+        private void LoadGameCodeDll()
+        {
+            var configName = GetConfigurationName(DllBuildConfig);
+            var dll = $@"{Path}x64\{configName}\{Name}.dll";
+            if (File.Exists(dll) && EngineAPI.LoadGameCodeDll(dll) != 0)
+            {
+                Logger.Log(MessageType.Info, "게임코드 DLL 성공적으로 로드");
+            }
+            else
+            {
+                Logger.Log(MessageType.Warning, "DLL파일 찾기 에러, 먼저 프로젝트 빌드하고 시도해보세요");
+            }
+        }
 
-            UndoCommand = new RelayCommand<object>(x => UndoRedo.Undo());
-            RedoCommand = new RelayCommand<object>(x => UndoRedo.Redo());
-            SaveCommand = new RelayCommand<object>(x => Save(this));
+        private void UnloadGameCodeDll()
+        {
+            if (EngineAPI.UnloadGameCodeDll() != 0)
+            {
+                Logger.Log(MessageType.Info, "게임 코드 DLL Unload");
+            }
+        }
+
+        [OnDeserialized]
+		private async void OnDeserialized(StreamingContext context)
+		{
+            if (_scenes == null)
+            {
+                Scenes = new ReadOnlyObservableCollection<Scene>(_scenes);
+                OnPropertyChanged(nameof(Scenes));
+            }
+            ActiveScene = _scenes.FirstOrDefault(x => x.IsActive);
+
+            await BuildGameCodeDll(false);
+
+            SetCommands();
         }
 
 		public Project(string name, string path)
 		{
 			Name = name;
 			Path = path;
+
 			OnDeserialized(new StreamingContext());
 		}
 	}

@@ -43,12 +43,12 @@ namespace PrimalEditor.Components
 					_isActive = value;
 					if (_isActive)
 					{
-						EntityId = EngineAPI.CreateGameEntity(this);
+						EntityId = EngineAPI.EntityAPI.CreateGameEntity(this);
 						Debug.Assert(ID.IsValid(_entityId));
 					}
 					else
 					{
-						EntityId = EngineAPI.RemoveGameEntity(this);
+						EntityId = EngineAPI.EntityAPI.RemoveGameEntity(this);
                     }
 					OnPropertyChanged(nameof(IsActive));
 				}
