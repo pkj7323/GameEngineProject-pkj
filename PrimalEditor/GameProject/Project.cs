@@ -196,7 +196,7 @@ namespace PrimalEditor.GameProject
         [OnDeserialized]
 		private async void OnDeserialized(StreamingContext context)
 		{
-            if (_scenes == null)
+            if (_scenes != null)
             {
                 Scenes = new ReadOnlyObservableCollection<Scene>(_scenes);
                 OnPropertyChanged(nameof(Scenes));

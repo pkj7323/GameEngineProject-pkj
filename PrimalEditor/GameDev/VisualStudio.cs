@@ -1,4 +1,6 @@
-﻿using PrimalEditor.GameProject;
+﻿// Copyright (c) Arash Khatami
+// Distributed under the MIT license. See the LICENSE file in the project root for more information.
+using PrimalEditor.GameProject;
 using PrimalEditor.Utilities;
 using System;
 using System.Collections.Generic;
@@ -9,9 +11,9 @@ using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 
-
 namespace PrimalEditor.GameDev
 {
+    
     static class VisualStudio
     {
         public static bool BuildSucceeded { get; private set; } = true;
@@ -97,7 +99,6 @@ namespace PrimalEditor.GameDev
             {
                 try
                 {
-                    _vsInstance?.Quit();
                     break;
                 }
                 catch (COMException ex) when ((uint)ex.HResult == 0x80010001)
@@ -148,6 +149,7 @@ namespace PrimalEditor.GameDev
             }
             return true;
         }
+
         private static void OnBuildSolutionBegin(string project, string projectConfig, string platform, string solutionConfig)
         {
             Logger.Log(MessageType.Info, $"Building {project}, {projectConfig}, {platform}, {solutionConfig}");
