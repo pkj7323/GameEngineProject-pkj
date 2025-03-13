@@ -1,4 +1,5 @@
-﻿using PrimalEditor.GameProject;
+﻿using PrimalEditor.GameDev;
+using PrimalEditor.GameProject;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -33,6 +34,11 @@ namespace PrimalEditor.Editors
             Loaded -= OnWorldEditorViewLoaded;
             Focus();
             
+        }
+
+        private void OnNewScript_Button_Click(object sender, RoutedEventArgs e)
+        {
+            new NewScriptDialog().ShowDialog();
         }
     }
 }

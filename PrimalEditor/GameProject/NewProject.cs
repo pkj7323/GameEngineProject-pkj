@@ -165,7 +165,7 @@ namespace PrimalEditor.GameProject
                 //project는 씬을 리스트로 저장, 씬은 게임 Entity를 리스트로 저장, Entity는 컴포넌트를 리스트로 저장
 
 				var projectXml = File.ReadAllText(template.ProjectFilePath);
-				projectXml = string.Format(projectXml, ProjectName, ProjectPath);
+				projectXml = string.Format(projectXml, ProjectName, path);
 				var projectPath = Path.GetFullPath(Path.Combine(path, $"{ProjectName}{Project.Extension}"));
                 File.WriteAllText(projectPath, projectXml);
 
@@ -216,12 +216,12 @@ namespace PrimalEditor.GameProject
 				foreach (var file in templatesFiles)
 				{
 					var template = Serializer.FromFile<ProjectTemplate>(file);
-					template.IconFilePath = System.IO.Path.GetFullPath(Path.Combine(Path.GetDirectoryName(file), "Icon.png"));
-					template.Icon = File.ReadAllBytes(template.IconFilePath);
-					template.ScreenShotFilePath = System.IO.Path.GetFullPath(Path.Combine(Path.GetDirectoryName(file), "ScreenShot.png"));
-					template.ScreenShot = File.ReadAllBytes(template.ScreenShotFilePath);
-					template.ProjectFilePath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(file), template.ProjectFile));
-					template.TemplatePath = Path.GetDirectoryName(file);
+                    template.TemplatePath = Path.GetDirectoryName(file);
+                    template.IconFilePath = Path.GetFullPath(Path.Combine(template.TemplatePath, "Icon.png"));
+                    template.Icon = File.ReadAllBytes(template.IconFilePath);
+                    template.ScreenShotFilePath = Path.GetFullPath(Path.Combine(template.TemplatePath, "Screenshot.png"));
+                    template.ScreenShot = File.ReadAllBytes(template.ScreenShotFilePath);
+                    template.ProjectFilePath = Path.GetFullPath(Path.Combine(template.TemplatePath, template.ProjectFile));
 
 
                     _projectTemplates.Add(template);
