@@ -24,6 +24,17 @@ namespace primal::script
 			static script_registry reg;
 			return reg;
 		}
+#ifdef USE_WITH_EDITOR
+		utl::vector<std::string>& script_names()
+		{
+			static utl::vector<std::string> names;
+			return names;
+		}
+#endif
+
+
+
+
 		bool exists(script_id id)
 		{
 			assert(id::is_valid(id));
@@ -36,6 +47,35 @@ namespace primal::script
 		}
 	}
 
+	
+
+	
+
+	namespace detail
+	{
+		u8 register_script(size_t tag, script_creator func)
+		{
+			bool result{ registry().insert(script_registry::value_type{tag, func}).second };
+			assert(result);
+			return result;
+		}
+
+		script_creator get_script_creator(size_t tag)
+		{
+			auto script = primal::script::registry().find(tag);
+			assert(script != primal::script::registry().end() && script->first == tag);
+			return script->second;
+		}
+
+#ifdef USE_WITH_EDITOR
+		u8
+			add_script_name(const char* name)
+		{
+			script_names().emplace_back(name);
+			return true;
+		}
+#endif // USE_WITH_EDITOR
+	}
 	component create(init_info info, game_entity::entity entity)
 	{
 		assert(entity.is_valid());
@@ -64,7 +104,6 @@ namespace primal::script
 		id_mapping[id::index(id)] = index;
 		return component{ id };
 	}
-
 	void remove(component c)
 	{
 		assert(c.is_valid() && exists(c.getId()));
@@ -75,15 +114,20 @@ namespace primal::script
 		id_mapping[id::index(last_id)] = index;
 		id_mapping[id::index(id)] = id::invalid_id;
 	}
+#ifdef USE_WITH_EDITOR
+#include <atlsafe.h>
 
-	namespace detail
+	extern "C" __declspec(dllexport) LPSAFEARRAY __stdcall get_script_names()
 	{
-		u8 register_script(size_t tag, script_creator func)
+		const u32 size{ (u32)primal::script::script_names().size() };
+		if (!size) return nullptr;
+		CComSafeArray<BSTR> names{ size };
+		for (u32 i = 0; i < size; i++)
 		{
-			bool result{ registry().insert(script_registry::value_type{tag, func}).second };
-			assert(result);
-			return result;
+			names.SetAt(i, A2BSTR_EX(primal::script::script_names()[i].c_str()), false);
 		}
+		return names.Detach();
 	}
+#endif // USE_WITH_EDITOR
 
 }
