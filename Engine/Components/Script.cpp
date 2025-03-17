@@ -68,13 +68,12 @@ namespace primal::script
 		}
 
 #ifdef USE_WITH_EDITOR
-		u8
-			add_script_name(const char* name)
+		u8 add_script_name(const char* name)
 		{
 			script_names().emplace_back(name);
 			return true;
 		}
-#endif // USE_WITH_EDITOR
+#endif
 	}
 	component create(init_info info, game_entity::entity entity)
 	{

@@ -16,7 +16,8 @@ namespace PrimalEditor.Components
 {
 	[DataContract]
 	[KnownType(typeof(Transform))]
-	class GameEntity : ViewModelBase
+	[KnownType(typeof(Script))]
+    class GameEntity : ViewModelBase
 	{
 		private int _entityId = ID.INVALID_ID;
 		public int EntityId
@@ -96,6 +97,32 @@ namespace PrimalEditor.Components
 
 		public Component GetComponent(Type type) => Components.FirstOrDefault(c => c.GetType() == type);
 		public T GetComponent<T>() where T : Component => GetComponent(typeof(T)) as T;
+
+		public bool AddComponent(Component component)
+		{
+			Debug.Assert(component != null);
+            if (!Components.Any(x=> x.GetType() == component.GetType()))
+			{
+				IsActive = false;
+				_components.Add(component);
+                IsActive = true;
+				return true;
+            }
+			Logger.Log(MessageType.Warning,$"엔티티 {Name}에 이미 {component.GetType().Name}이 있습니다.");
+            return false;
+        }
+        public void RemoveComponent(Component component)
+        {
+            Debug.Assert(component != null);
+            if (component is Transform) return; // Transform component can't be removed
+
+            if (_components.Contains(component))
+            {
+                IsActive = false;
+                _components.Remove(component);
+                IsActive = true;
+            }
+        }
 
         [OnDeserialized]
 		void OnDeserialized(StreamingContext context)
@@ -204,13 +231,13 @@ namespace PrimalEditor.Components
             
 		}
 
-		private static bool? GetMixedValue<T>(List<T> objects, Func<T, bool> getProperty)
+        public static bool? GetMixedValue<T>(List<T> objects, Func<T, bool> getProperty)
 		{
 			var value = getProperty(objects.First());
             return objects.Skip(1).Any(x => value != getProperty(x)) ? (bool?)null : value;
         }
 
-		private static string GetMixedValue<T>(List<T> objects, Func<T, string> getProperty)
+        public static string GetMixedValue<T>(List<T> objects, Func<T, string> getProperty)
 		{
 			var value = getProperty(objects.First());
             return objects.Skip(1).Any(x => value != getProperty(x)) ? null : value;

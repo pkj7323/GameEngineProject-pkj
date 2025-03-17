@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Xml.Serialization;
+using PrimalEditor.Components;
 
 namespace PrimalEditor.GameProject
 {
@@ -58,6 +59,19 @@ namespace PrimalEditor.GameProject
         public BuildConfiguration DllBuildConfig 
 			=> BuildConfig == 0 ? BuildConfiguration.DebugEditor : BuildConfiguration.ReleaseEditor;
 
+        private string[] _availableScripts;
+        public string[] AvailableScripts
+        {
+            get => _availableScripts;
+            set
+            {
+                if (_availableScripts != value)
+                {
+                    _availableScripts = value;
+                    OnPropertyChanged(nameof(AvailableScripts));
+                }
+            }
+        }
 
         [DataMember(Name = "Scenes")]
 		private ObservableCollection<Scene> _scenes = new ObservableCollection<Scene>();
@@ -144,6 +158,7 @@ namespace PrimalEditor.GameProject
 		}
 		public void Unload() 
 		{
+            UnloadGameCodeDll();
             VisualStudio.CloseVisualStudio();
             UndoRedo.Reset();
         }
@@ -175,8 +190,12 @@ namespace PrimalEditor.GameProject
         {
             var configName = GetConfigurationName(DllBuildConfig);
             var dll = $@"{Path}x64\{configName}\{Name}.dll";
+            AvailableScripts = null;
             if (File.Exists(dll) && EngineAPI.LoadGameCodeDll(dll) != 0)
             {
+                AvailableScripts = EngineAPI.GetScriptNames();
+                ActiveScene.GameEntities.Where(x => x.GetComponent<Script>() != null).ToList()
+                    .ForEach(x => x.IsActive = true);
                 Logger.Log(MessageType.Info, "게임코드 DLL 성공적으로 로드");
             }
             else
@@ -187,9 +206,12 @@ namespace PrimalEditor.GameProject
 
         private void UnloadGameCodeDll()
         {
+            ActiveScene.GameEntities.Where(x => x.GetComponent<Script>() != null).ToList()
+                .ForEach(x => x.IsActive = false);
             if (EngineAPI.UnloadGameCodeDll() != 0)
             {
                 Logger.Log(MessageType.Info, "게임 코드 DLL Unload");
+                AvailableScripts = null;
             }
         }
 
@@ -202,7 +224,7 @@ namespace PrimalEditor.GameProject
                 OnPropertyChanged(nameof(Scenes));
             }
             ActiveScene = _scenes.FirstOrDefault(x => x.IsActive);
-
+            Debug.Assert(ActiveScene != null);
             await BuildGameCodeDll(false);
 
             SetCommands();
