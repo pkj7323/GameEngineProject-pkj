@@ -1,6 +1,6 @@
 #include "Script.h"
 #include "Entity.h"
-
+#include <atlsafe.h>
 
 namespace primal::script
 {
@@ -112,7 +112,7 @@ namespace primal::script
 		id_mapping[id::index(id)] = id::invalid_id;
 	}
 #ifdef USE_WITH_EDITOR
-#include <atlsafe.h>
+
 
 	extern "C" __declspec(dllexport) LPSAFEARRAY __stdcall get_script_names()
 	{

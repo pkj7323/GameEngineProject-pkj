@@ -44,8 +44,9 @@ namespace PrimalEditor.DllWrappers
         [DllImport(_engineAPI)]
         public static extern IntPtr GetScriptCreator(string name);
         [DllImport(_engineAPI)]
-        [return : MarshalAs(UnmanagedType.LPStr)]
+        [return: MarshalAs(UnmanagedType.SafeArray, SafeArraySubType = VarEnum.VT_BSTR)]
         public static extern string[] GetScriptNames();
+
         internal static class EntityAPI
         {
             [DllImport(_engineAPI)]
