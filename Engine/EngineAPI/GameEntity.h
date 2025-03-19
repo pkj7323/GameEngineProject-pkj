@@ -21,7 +21,7 @@ namespace primal
 			transform::component transform() const;
 			script::component script() const;
 		private:
-			entity_id id_{ id::invalid_id };
+			entity_id id_;
 		};
 	}
 
@@ -61,7 +61,7 @@ namespace primal
 			}
 
 #ifdef USE_WITH_EDITOR
-			u8 add_script_name(const char* name);
+u8 add_script_name(const char* name);
 #define REGISTER_SCRIPT(TYPE)									\
 		namespace												\
 		{														\
@@ -79,7 +79,7 @@ namespace primal
 	{ primal::script::detail::register_script(                    \
 		primal::script::detail::string_hash()(#TYPE),             \
 		&primal::script::detail::create_script<TYPE>) };          \
-         }
+    }
 #endif
 		}
 	}

@@ -74,7 +74,7 @@ namespace primal::id
 			struct name final : id::detail::id_base										\
 			{																			\
 				constexpr explicit name(id::id_type id) : id_base{ id } {}				\
-				constexpr name() : id_base{ 0 } {}				\
+				constexpr name() : id_base{ 0 } {}										\
 			};
 #else
 #define DEFINE_TYPED_ID(name) using name = id::id_type;

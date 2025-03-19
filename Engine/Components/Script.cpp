@@ -1,8 +1,6 @@
 #include "Script.h"
-
-#include <unordered_map>
-
 #include "Entity.h"
+
 
 namespace primal::script
 {
