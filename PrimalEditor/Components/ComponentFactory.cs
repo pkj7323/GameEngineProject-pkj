@@ -25,5 +25,15 @@ namespace PrimalEditor.Components
             Debug.Assert((int)type < _function.Length);
             return _function[(int)type];
         }
+
+        public static ComponentType ToEnumType(this Component component)
+        {
+            return component switch
+            {
+                Transform _ => ComponentType.Transform,
+                Script _ => ComponentType.Script,
+                _ => throw new ArgumentException("Invalid component type"),
+            };
+        }
     }
 }

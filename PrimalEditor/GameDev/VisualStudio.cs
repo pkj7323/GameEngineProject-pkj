@@ -94,20 +94,7 @@ namespace PrimalEditor.GameDev
                 _vsInstance.ExecuteCommand("File.SaveAll");
                 _vsInstance.Solution.Close(true);
             }
-            int retryCount = 3;
-            while (retryCount > 0)
-            {
-                try
-                {
-                    break;
-                }
-                catch (COMException ex) when ((uint)ex.HResult == 0x80010001)
-                {
-                    retryCount--;
-                    if (retryCount == 0) throw;
-                    System.Threading.Thread.Sleep(1000); // Wait for 1 second before retrying
-                }
-            }
+            _vsInstance?.Quit();
         }
 
         public static bool AddFilesToSolution(string solution, string projectName, string[] files)
@@ -227,6 +214,22 @@ namespace PrimalEditor.GameDev
                     Debug.WriteLine($"Attempt {i}: failed to build {project.Name}");
                     System.Threading.Thread.Sleep(1000);
                 }
+            }
+        }
+
+        public static void Run(Project project, string configName, bool debug)
+        {
+            if (_vsInstance!= null && !IsDebugging() && BuildDone && BuildSucceeded)
+            {
+                _vsInstance.ExecuteCommand(debug?"Debug.start":"Debug.StartWithoutDebugging");
+            }
+        }
+
+        public static void Stop()
+        {
+            if (_vsInstance != null && IsDebugging())
+            {
+                _vsInstance.ExecuteCommand("Debug.StopDebugging");
             }
         }
     }
