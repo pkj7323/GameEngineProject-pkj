@@ -57,7 +57,28 @@ namespace primal::platform
 			case WM_DESTROY:
 				get_from_handle(hWnd).is_closed = true;
 				break;
+			case WM_EXITSIZEMOVE:
+				info = &get_from_handle(hWnd);
+				break;
+			case WM_SIZE:
+				if (wParam == SIZE_MAXIMIZED) {
+					info = &get_from_handle(hWnd);
+				}
+				break;
+			case WM_SYSCOMMAND:
+				if (wParam == SC_RESTORE) {
+					info = &get_from_handle(hWnd);
+				}
+				break;
+			default:
+				break;
 			}
+			if (info)
+			{
+				assert(info->hWnd);
+				GetClientRect(info->hWnd, info->is_fullscreen ? &info->fullscreen_area : &info->client_area);
+			}
+
 			LONG_PTR long_ptr{ GetWindowLongPtr(hWnd, 0) };
 			return long_ptr
 				       ? reinterpret_cast<window_proc>(long_ptr)(hWnd, msg, wParam, lParam)
@@ -190,6 +211,8 @@ namespace primal::platform
 
 		if (info.hWnd)
 		{
+			SetLastError(0);
+
 			const window_id id{ add_to_window(info) };
 			SetWindowLongPtr(info.hWnd, GWLP_USERDATA, (LONG_PTR)id);
 			// 윈도우 메세지를 핸들링하는 윈도우 콜백 함수 포인터를 위해
