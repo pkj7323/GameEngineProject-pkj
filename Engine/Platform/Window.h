@@ -15,10 +15,10 @@ namespace primal::platform
 		bool is_fullscreen() const;
 		void* handle() const;//void 포인터인 이유 : 플랫폼에 따라 다르기 때문에
 		void set_caption(const wchar_t* caption) const;
-		const math::u32v4 size() const;
+		math::u32v4 size() const;
 		void resize(u32 width, u32 height) const;
-		const u32 get_width() const;
-		const u32 get_height() const;
+		u32 get_width() const;
+		u32 get_height() const;
 		bool is_closed() const;
 	private:
 		window_id id_;

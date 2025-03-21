@@ -181,16 +181,18 @@ namespace primal::platform
 		RegisterClassEx(&wc);
 
 		window_info info{};
-		RECT rc{ info.client_area };
+		info.client_area.right = (init_info && init_info->width) ? info.client_area.left + init_info->width : info.client_area.right;
+		info.client_area.bottom = (init_info && init_info->height) ? info.client_area.top + init_info->height : info.client_area.bottom;
+		RECT rect{ info.client_area };
 		//윈도우 크기 조정
-		AdjustWindowRect(&rc, info.style, FALSE);
+		AdjustWindowRect(&rect, info.style, FALSE);
 
 
 		const wchar_t* caption{ (init_info && init_info->caption) ? init_info->caption : L"Primal Game" };
-		const i32 left{ (init_info && init_info->left) ? init_info->left : info.client_area.left };
-		const i32 top{ (init_info && init_info->top) ? init_info->top : info.client_area.top };
-		const i32 width{ (init_info && init_info->width) ? init_info->width : rc.right - rc.left };
-		const i32 height{ (init_info && init_info->height) ? init_info->height : rc.bottom - rc.top };
+		const i32 left{ init_info  ? init_info->left : info.top_left.x };
+		const i32 top{ init_info  ? init_info->top : info.top_left.y };
+		const i32 width{ rect.right - rect.left };
+		const i32 height{ rect.bottom - rect.top };
 
 
 		info.style |= parent ? WS_CHILD : WS_OVERLAPPEDWINDOW;
@@ -211,7 +213,8 @@ namespace primal::platform
 
 		if (info.hWnd)
 		{
-			SetLastError(0);
+
+			DEBUG_OP(SetLastError(0));
 
 			const window_id id{ add_to_window(info) };
 			SetWindowLongPtr(info.hWnd, GWLP_USERDATA, (LONG_PTR)id);
@@ -219,7 +222,9 @@ namespace primal::platform
 			// "여분"의 메모리를 할당한다.
 			if (callback) 
 				SetWindowLongPtr(info.hWnd, 0, reinterpret_cast<LONG_PTR>(callback));
-			assert(GetLastError() == 0);
+
+			DEBUG_OP(assert(GetLastError() == 0));
+
 			ShowWindow(info.hWnd, SW_SHOWNORMAL);
 			UpdateWindow(info.hWnd);
 			return window{ id };
@@ -235,7 +240,8 @@ namespace primal::platform
 		remove_from_window(id);
 	}
 
-#elif
+
+#else
 #error "하나 이상의 플랫폼을 선택해야합니다."
 #endif // _WIN64
 	
@@ -264,7 +270,7 @@ namespace primal::platform
 		assert(is_valid());
 		set_window_caption(id_, caption);
 	}
-	const math::u32v4 window::size() const {
+	math::u32v4 window::size() const {
 		assert(is_valid());
 		return get_window_size(id_);
 	}
@@ -272,11 +278,11 @@ namespace primal::platform
 		assert(is_valid());
 		resize_window(id_, width, height);
 	}
-	const u32 window::get_width() const {
+	u32 window::get_width() const {
 		math::u32v4 s{ size() };
 		return s.z - s.x;
 	}
-	const u32 window::get_height() const {
+	u32 window::get_height() const {
 		math::u32v4 s{ size() };
 		return s.w - s.y;
 	}

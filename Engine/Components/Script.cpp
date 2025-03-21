@@ -118,6 +118,12 @@ namespace primal::script
 			ptr->update(dt);
 		}
 	}
+	void begin_play() {
+		for (auto& ptr : entity_scripts) {
+			ptr->begin_play();
+		}
+	}
+
 #ifdef USE_WITH_EDITOR
 
 
