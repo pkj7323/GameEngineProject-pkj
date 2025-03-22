@@ -99,11 +99,19 @@ namespace primal::platform
 		void resize_window(window_id id, u32 width, u32 height) {
 			window_info& info{ get_from_id(id) };
 
-			//유저가 스크린 해상도를 바꿧을때 풀스크린 과 창모드 둘다 리사이즈해야함 
-			RECT& area{ info.is_fullscreen ? info.fullscreen_area : info.client_area };
-			area.bottom = area.top + height;
-			area.right = area.left + width;
-			resize_window(info, area);
+			if (info.style & WS_CHILD)
+			{
+				GetClientRect(info.hWnd, &info.client_area);
+			}
+			else
+			{
+				//유저가 스크린 해상도를 바꿧을때 풀스크린 과 창모드 둘다 리사이즈해야함 
+				RECT& area{ info.is_fullscreen ? info.fullscreen_area : info.client_area };
+				area.bottom = area.top + height;
+				area.right = area.left + width;
+				resize_window(info, area);
+			}
+
 		}
 
 
@@ -118,12 +126,11 @@ namespace primal::platform
 					GetWindowRect(info.hWnd, &rect);
 					info.top_left.x = rect.left;
 					info.top_left.y = rect.top;
-					info.style = 0;
-					SetWindowLongPtr(info.hWnd, GWL_STYLE, info.style);
+					SetWindowLongPtr(info.hWnd, GWL_STYLE, 0);
 					ShowWindow(info.hWnd, SW_MAXIMIZE);
 				}
 				else {
-					info.style = WS_VISIBLE | WS_OVERLAPPEDWINDOW;
+
 					SetWindowLongPtr(info.hWnd, GWL_STYLE, info.style);
 					resize_window(info, info.client_area);
 					ShowWindow(info.hWnd, SW_SHOWNORMAL);
@@ -145,7 +152,7 @@ namespace primal::platform
 		}
 		math::u32v4 get_window_size(window_id id) {
 			window_info& info{ get_from_id(id) };
-			RECT rect{ info.is_fullscreen ? info.fullscreen_area : info.client_area };
+			RECT& rect{ info.is_fullscreen ? info.fullscreen_area : info.client_area };
 			return { (u32)rect.left,(u32)rect.top,(u32)rect.right,(u32)rect.bottom};
 		}
 		bool is_window_closed(window_id id) {
@@ -183,6 +190,8 @@ namespace primal::platform
 		window_info info{};
 		info.client_area.right = (init_info && init_info->width) ? info.client_area.left + init_info->width : info.client_area.right;
 		info.client_area.bottom = (init_info && init_info->height) ? info.client_area.top + init_info->height : info.client_area.bottom;
+		info.style |= parent ? WS_CHILD : WS_OVERLAPPEDWINDOW;
+
 		RECT rect{ info.client_area };
 		//윈도우 크기 조정
 		AdjustWindowRect(&rect, info.style, FALSE);
@@ -195,7 +204,6 @@ namespace primal::platform
 		const i32 height{ rect.bottom - rect.top };
 
 
-		info.style |= parent ? WS_CHILD : WS_OVERLAPPEDWINDOW;
 		//윈도우 클래스 인스턴스 생성
 		info.hWnd = CreateWindowEx(
 			0,

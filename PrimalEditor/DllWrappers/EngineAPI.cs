@@ -46,6 +46,16 @@ namespace PrimalEditor.DllWrappers
         [DllImport(_engineAPI)]
         [return: MarshalAs(UnmanagedType.SafeArray, SafeArraySubType = VarEnum.VT_BSTR)]
         public static extern string[] GetScriptNames();
+        [DllImport(_engineAPI)]
+        public static extern int CreateRenderSurface(IntPtr host, int width, int height);
+        [DllImport(_engineAPI)]
+        public static extern void RemoveRenderSurface(int surfaceId);
+        [DllImport(_engineAPI)]
+        public static extern IntPtr GetWindowHandle(int surfaceId);
+        [DllImport(_engineAPI)]
+        public static extern int ResizeRenderSurface(int surfaceId);
+            
+        
 
         internal static class EntityAPI
         {

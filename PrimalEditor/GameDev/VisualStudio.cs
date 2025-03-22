@@ -89,12 +89,25 @@ namespace PrimalEditor.GameDev
 
         public static void CloseVisualStudio()
         {
-            if (_vsInstance?.Solution.IsOpen == true)
-            {
+            if (_vsInstance?.Solution.IsOpen == true) {
                 _vsInstance.ExecuteCommand("File.SaveAll");
                 _vsInstance.Solution.Close(true);
             }
-            _vsInstance?.Quit();
+
+            // 재시도 메커니즘 추가
+            const int maxRetries = 3;
+            const int delayMilliseconds = 1000;
+            for (int attempt = 0; attempt < maxRetries; attempt++) {
+                try {
+                    _vsInstance?.Quit();
+                    break; // 성공적으로 종료되면 루프를 빠져나감
+                }
+                catch (COMException ex) when (ex.ErrorCode == unchecked((int)0x80010001)) // RPC_E_CALL_REJECTED
+                {
+                    Debug.WriteLine($"Attempt {attempt + 1}: Visual Studio 인스턴스가 호출을 거부했습니다. 재시도 중...");
+                    System.Threading.Thread.Sleep(delayMilliseconds);
+                }
+            }
         }
 
         public static bool AddFilesToSolution(string solution, string projectName, string[] files)
