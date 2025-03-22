@@ -45,8 +45,8 @@ public partial class MainWindow : Window
 			var dlg = new EnginePathDialog();
             if (dlg.ShowDialog() == true)
             {
-                primalPath = dlg.PrimalPath;
-                Environment.SetEnvironmentVariable("PRIMAL_ENGINE", primalPath.ToUpper(), EnvironmentVariableTarget.User);
+                PrimalPath = dlg.PrimalPath;
+                Environment.SetEnvironmentVariable("PRIMAL_ENGINE", PrimalPath.ToUpper(), EnvironmentVariableTarget.User);
             }
 			else
 			{
