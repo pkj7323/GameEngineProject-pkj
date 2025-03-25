@@ -100,6 +100,8 @@ namespace primal::tools
 			const u32 num_indices{ 3 * 2 * horizontal_count * vertical_count };
 			assert(m.raw_indices.size() == num_indices);
 
+			m.uvs.resize(1);
+
 			for (u32 i{ 0 }; i < num_indices; ++i) {
 				m.uvs[0].emplace_back(uvs[m.raw_indices[i]]);
 			}
