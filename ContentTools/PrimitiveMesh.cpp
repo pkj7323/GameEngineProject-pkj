@@ -3,6 +3,8 @@
 
 namespace primal::tools
 {
+	using namespace math;
+	using namespace DirectX;
 	namespace 
 	{
 		using primitive_mesh_creator = void(*)(scene&, const primitive_init_info& info);
@@ -68,7 +70,7 @@ namespace primal::tools
 			const u32 row_length{ horizontal_count + 1 };
 			for (u32 j{ 0 }; j < vertical_count; ++j) {
 				u32 k{ 0 };
-				for (u32 i{ 0 }; i < horizontal_count; ++i) {
+				for (u32 i{ k }; i < horizontal_count; ++i) {
 					const u32 index[4]
 					{
 						i + j * row_length,
@@ -97,6 +99,143 @@ namespace primal::tools
 			return m;
 		}
 
+		mesh create_uv_sphere(const primitive_init_info& info)
+		{
+			const u32 phi_count{ std::clamp(info.segments[(u32)axis::x],3u,64u) };
+			const u32 theta_count{ std::clamp(info.segments[(u32)axis::y],2u,64u) };
+			const f32 theta_step{ math::pi / theta_count };
+			const f32 phi_step{ math::two_pi / phi_count };
+			const u32 num_indices{ 2 * 3 * phi_count + 2 * 3 * phi_count * (theta_count - 2) };
+			const u32 num_vertices{ 2 + phi_count * (theta_count - 1) };
+
+
+			mesh m{};
+			m.name = "uv_sphere";
+			m.positions.resize(num_vertices);
+
+			//add top vertex
+			u32 c{ 0 };
+			m.positions[c++] = { 0.f, info.size.y, 0.f };
+
+			for (u32 j = 1; j <= (theta_count - 1); ++j)
+			{
+				const f32 theta{ j * theta_step };
+				for (u32 i = 0; i < phi_count; ++i)
+				{
+					const f32 phi{ i * phi_step };
+					m.positions[c++] = {
+						info.size.x * XMScalarSin(theta) * XMScalarCos(phi),
+						info.size.y * XMScalarCos(theta),
+						-info.size.z * XMScalarSin(theta) * XMScalarSin(phi)
+					};
+				}
+			}
+
+			//add bottom vertex
+			m.positions[c++] = { 0.f, -info.size.y, 0.f };
+			assert(c == num_vertices);
+
+			c = 0;
+			m.raw_indices.resize(num_indices);
+			utl::vector<math::v2> uvs(num_indices);
+			const f32 inv_theta_count{ 1.f / theta_count };
+			const f32 inv_phi_count{ 1.f / phi_count };
+
+			//indices for top cap
+			for (u32 i = 0; i < phi_count -1; ++i)
+			{
+				uvs[c] = { (2 * i + 1) * 0.5f * inv_phi_count, 1.0f};
+				m.raw_indices[c++] = 0;
+				uvs[c] = { i * inv_phi_count, 1.0f - inv_theta_count};
+				m.raw_indices[c++] = i + 1;
+				uvs[c] = { (i + 1) * inv_phi_count, 1.0f - inv_theta_count };
+				m.raw_indices[c++] = i + 2;
+			}
+
+			uvs[c] = { static_cast<float>(1.0f - 0.5 * inv_phi_count), 1.0f };
+			m.raw_indices[c++] = 0;
+			uvs[c] = { 1.0f - inv_phi_count, 1.0f - inv_theta_count };
+			m.raw_indices[c++] = phi_count;
+			uvs[c] = { 1.0f, 1.0f - inv_theta_count };
+			m.raw_indices[c++] = 1;
+
+
+
+			//indices for the section between top and bottom rings
+			for (u32 j = 0; j < (theta_count - 2); ++j)
+			{
+				for (u32 i = 0; i < phi_count - 1; ++i)
+				{
+					const u32 index[4]
+					{
+						1 + i + j * phi_count,
+						1 + i + (j + 1) * phi_count,
+						1 + (i + 1) + (j + 1) * phi_count,
+						1 + (i + 1) + j * phi_count, 
+					};
+
+					uvs[c] = { i * inv_phi_count, 1.0f - (j + 1) * inv_theta_count };
+					m.raw_indices[c++] = index[0];
+					uvs[c] = { i * inv_phi_count, 1.0f - (j + 2) * inv_theta_count };
+					m.raw_indices[c++] = index[1];
+					uvs[c] = { (i + 1) * inv_phi_count, 1.0f - (j + 2) * inv_theta_count };
+					m.raw_indices[c++] = index[2];
+
+					uvs[c] = { i * inv_phi_count, 1.0f - (j + 1) * inv_theta_count };
+					m.raw_indices[c++] = index[0];
+					uvs[c] = { (i + 1) * inv_phi_count, 1.0f - (j + 2) * inv_theta_count };
+					m.raw_indices[c++] = index[2];
+					uvs[c] = { (i + 1) * inv_phi_count, 1.0f - (j + 1) * inv_theta_count };
+					m.raw_indices[c++] = index[3];
+				}
+				const u32 index[4]
+				{
+					phi_count + j * phi_count,
+					phi_count + (j + 1) * phi_count,
+					1 + (j + 1) * phi_count,
+					1 + j * phi_count
+				};
+				uvs[c] = { 1.0f - inv_phi_count, 1.0f - (j + 1) * inv_theta_count };
+				m.raw_indices[c++] = index[0];
+				uvs[c] = { 1.0f - inv_phi_count, 1.0f - (j + 2) * inv_theta_count };
+				m.raw_indices[c++] = index[1];
+				uvs[c] = { 1.0f, 1.0f - (j + 2) * inv_theta_count };
+				m.raw_indices[c++] = index[2];
+
+				uvs[c] = { 1.0f - inv_phi_count, 1.0f - (j + 1) * inv_theta_count };
+				m.raw_indices[c++] = index[0];
+				uvs[c] = { 1.0f, 1.0f - (j + 2) * inv_theta_count };
+				m.raw_indices[c++] = index[2];
+				uvs[c] = { 1.0f, 1.0f - (j + 1) * inv_theta_count };
+				m.raw_indices[c++] = index[3];
+
+			}
+
+			//indices for bottom cap
+			const u32 south_pole_index{ (u32)m.positions.size() - 1};
+			for (u32 i = 0; i < phi_count - 1; ++i)
+			{
+				uvs[c] = { (2 * i + 1) * 0.5f * inv_phi_count, 0.0f};
+				m.raw_indices[c++] = south_pole_index;
+				uvs[c] = { (i + 1) * inv_phi_count, inv_theta_count };
+				m.raw_indices[c++] = south_pole_index - phi_count + i + 1;
+				uvs[c] = { i * inv_phi_count, inv_theta_count };
+				m.raw_indices[c++] = south_pole_index - phi_count + i;
+			}
+			uvs[c] = { 1.f - 0.5f * inv_phi_count, 0.f };
+			m.raw_indices[c++] = south_pole_index;
+			uvs[c] = { 1.f, inv_theta_count };
+			m.raw_indices[c++] = south_pole_index - phi_count;
+			uvs[c] = { 1.f- inv_phi_count, inv_theta_count };
+			m.raw_indices[c++] = south_pole_index - 1;
+
+			assert(c == num_indices);
+
+			m.uvs.emplace_back(uvs);
+
+			return m;
+		}
+
 		void create_plane(scene& scene, const primitive_init_info& info) {
 			lod_group lod{};
 			lod.name = "plane";
@@ -105,7 +244,13 @@ namespace primal::tools
 		}
 		void create_cube(scene& scene, const primitive_init_info& info) {
 		}
+
+
 		void create_uv_sphere(scene& scene, const primitive_init_info& info) {
+			lod_group lod{};
+			lod.name = "uv_sphere";
+			lod.meshes.emplace_back(create_uv_sphere(info));
+			scene.lod_group.emplace_back(lod);
 		}
 		void create_ico_sphere(scene& scene, const primitive_init_info& info) {
 		}
