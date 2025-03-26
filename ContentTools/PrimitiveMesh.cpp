@@ -66,34 +66,23 @@ namespace primal::tools
 			assert(m.positions.size() == (u64)(horizontal_count + 1) * (u64)(vertical_count + 1));
 
 			const u32 row_length{ horizontal_count + 1 };
-			for (u32 j{ 0 }, k{ 0 }; j < vertical_count; ++j) {
+			for (u32 j{ 0 }; j < vertical_count; ++j) {
+				u32 k{ 0 };
 				for (u32 i{ 0 }; i < horizontal_count; ++i) {
 					const u32 index[4]
 					{
 						i + j * row_length,
 						i + (j + 1) * row_length,
-						i + 1 + j * row_length,
-						i + 1 + (j + 1) * row_length
+						(i + 1) + j * row_length,
+						(i + 1) + (j + 1) * row_length
 					};
-					if (flip_winding) {
-						m.raw_indices.emplace_back(index[0]);
-						m.raw_indices.emplace_back(index[1]);
-						m.raw_indices.emplace_back(index[2]);
+					m.raw_indices.emplace_back(index[0]);
+					m.raw_indices.emplace_back(index[flip_winding ? 2 : 1]);
+					m.raw_indices.emplace_back(index[flip_winding ? 1 : 2]);
 
-						m.raw_indices.emplace_back(index[2]);
-						m.raw_indices.emplace_back(index[1]);
-						m.raw_indices.emplace_back(index[3]);
-						
-					}
-					else {
-						m.raw_indices.emplace_back(index[0]);
-						m.raw_indices.emplace_back(index[2]);
-						m.raw_indices.emplace_back(index[1]);
-
-						m.raw_indices.emplace_back(index[2]);
-						m.raw_indices.emplace_back(index[3]);
-						m.raw_indices.emplace_back(index[1]);
-					}
+					m.raw_indices.emplace_back(index[2]);
+					m.raw_indices.emplace_back(index[flip_winding ? 3 : 1]);
+					m.raw_indices.emplace_back(index[flip_winding ? 1 : 3]);
 				}
 				++k;
 			}

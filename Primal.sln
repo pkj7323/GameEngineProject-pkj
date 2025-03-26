@@ -6,8 +6,14 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Engine", "Engine\Engine.vcxproj", "{B0786F75-413F-432E-B931-75CC049AD7F7}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EngineDLL", "EngineDLL\EngineDLL.vcxproj", "{95D7FE81-FEC4-4B65-9272-A49905CD39F9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B0786F75-413F-432E-B931-75CC049AD7F7} = {B0786F75-413F-432E-B931-75CC049AD7F7}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EngineTest", "EngineTest\EngineTest.vcxproj", "{7682EAD2-2A47-41D3-8F40-47A365BD1B41}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B0786F75-413F-432E-B931-75CC049AD7F7} = {B0786F75-413F-432E-B931-75CC049AD7F7}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrimalEditor", "PrimalEditor\PrimalEditor.csproj", "{F9E1EA04-9E39-4B3A-9A7C-1AC7B248EB52}"
 EndProject
