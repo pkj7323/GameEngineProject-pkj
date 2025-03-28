@@ -2,12 +2,15 @@
 #pragma comment(lib, "Engine.lib")
 
 #define TEST_ENTITY_COMPONENTS 0
-#define TEST_WINDOW 1
+#define TEST_WINDOW 0
+#define TEST_RENDERER 1
 
 #if TEST_ENTITY_COMPONENTS
 #include "TestEntityComponents.h"
 #elif TEST_WINDOW
 #include "TestWindow.h"
+#elif TEST_RENDERER
+#include "TestRenderer.h"
 #else
 #error 하나 이상의 테스트를 선택해야합니다.
 #endif

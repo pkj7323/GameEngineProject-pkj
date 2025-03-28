@@ -39,6 +39,8 @@ LRESULT win_proc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	}
 	return DefWindowProc(hWnd, msg, wParam, lParam);
 }
+
+
 class engine_test : public Test {
 public:
 	bool init() override {
