@@ -49,7 +49,7 @@ void create_render_surfaces(graphics::render_surface& surface, platform::window_
 bool engine_test::init()
 {
 	bool result{ graphics::initialize(graphics::graphics_platform::direct3d12) };
-	if (!result)
+	if (not result)
 	{
 		return false;
 	}
