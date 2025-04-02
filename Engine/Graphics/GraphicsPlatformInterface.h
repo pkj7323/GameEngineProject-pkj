@@ -6,7 +6,10 @@ namespace primal::graphics
 {
 	struct platform_interface
 	{
-		bool (*initialize)(void);
-		void (*shutdown)(void);
+		std::function<bool(void)> initialize;
+		std::function<void(void)> shutdown;
+		std::function<void(void)> render;
+
+		
 	};
 }

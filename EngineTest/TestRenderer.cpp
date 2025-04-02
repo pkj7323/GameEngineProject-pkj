@@ -2,7 +2,7 @@
 #include "../Platform/Platform.h"
 #include "../Graphics/Renderer.h"
 #include "TestRenderer.h"
-
+#ifdef TEST_RENDERER
 
 using namespace primal;
 graphics::render_surface _surfaces[4];
@@ -70,11 +70,13 @@ bool engine_test::init()
 void engine_test::run()
 {
 	std::this_thread::sleep_for(std::chrono::milliseconds(10));
+	graphics::render();
 }
 
 void destroy_render_surface(graphics::render_surface& surface)
 {
 	platform::remove_window(surface.window.getId());
+	
 }
 
 void engine_test::end()
@@ -85,3 +87,4 @@ void engine_test::end()
 	}
 	graphics::shutdown();
 }
+#endif

@@ -18,6 +18,6 @@ namespace primal::graphics
 		open_gl = 2 ,
 	};
 	bool initialize(graphics_platform platform);
-
 	void shutdown();
+	void render();
 }
