@@ -47,7 +47,7 @@ inline HRESULT DXCall(HRESULT hr)
 inline void NAME_D3D12_OBJECT(Microsoft::WRL::ComPtr<ID3D12Object> obj, const wchar_t* name)
 {
 	obj->SetName(name);
-	OutputDebugString(L"::D3D12 Object Created");
+	OutputDebugString(L"::D3D12 Object Created ");
 	OutputDebugString(name);
 	OutputDebugString(L"\n");
 }

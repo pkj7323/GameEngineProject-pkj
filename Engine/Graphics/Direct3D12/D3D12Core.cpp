@@ -1,6 +1,6 @@
 #include "D3D12Core.h"
+#include "D3D12Resources.h"
 
-#include <ostream>
 using namespace Microsoft::WRL;
 namespace primal::graphics::d3d12::core
 {
@@ -161,6 +161,7 @@ namespace primal::graphics::d3d12::core
 				void release()
 				{
 					core::release(command_allocator_);
+					fence_value_ = 0;
 				}
 			};
 			ID3D12CommandQueue*								command_queue_{ nullptr };
@@ -169,7 +170,7 @@ namespace primal::graphics::d3d12::core
 			ID3D12Fence1*									fence_{ nullptr };
 			u64												fence_value_{ 0 };
 
-			std::array<command_frame, frame_buffer_count>	command_frames_{};
+			std::array<command_frame, frame_buffer_count>	command_frames_{}; //문제 발생하면 c스타일로 stl쓰지말고 내려야됨
 
 			HANDLE											fence_event_{ nullptr };
 			u32												frame_index_{0};
@@ -178,7 +179,18 @@ namespace primal::graphics::d3d12::core
 		ID3D12Device8*				main_device{ nullptr };
 		IDXGIFactory7*				dxgi_factory{ nullptr };
 		d3d12_command				gfx_command;
+		descriptor_heap				rtv_desc_heap{ D3D12_DESCRIPTOR_HEAP_TYPE_RTV };
+		descriptor_heap				dsv_desc_heap{ D3D12_DESCRIPTOR_HEAP_TYPE_DSV };
+		descriptor_heap				srv_desc_heap{ D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV };
+		descriptor_heap				uav_desc_heap{ D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV };
 		constexpr D3D_FEATURE_LEVEL minimum_feature_level{ D3D_FEATURE_LEVEL_11_0 };
+
+		u32							deferred_release_flag[frame_buffer_count]{};
+		std::mutex					deferred_release_mutex{};
+		utl::vector<IUnknown*>		deferred_releases[frame_buffer_count]{};
+
+
+
 
 		bool failed_init()
 		{
@@ -220,9 +232,36 @@ namespace primal::graphics::d3d12::core
 			DXCall(device->CheckFeatureSupport(D3D12_FEATURE_FEATURE_LEVELS, &feature_levels_info, sizeof(feature_levels_info)));
 			return feature_levels_info.MaxSupportedFeatureLevel;
 		}
+
+		void __declspec(noinline) process_deferred_releases(u32 frame_index)
+		{
+			std::lock_guard lock{ deferred_release_mutex };
+			deferred_release_flag[frame_index] = 0;
+
+			rtv_desc_heap.process_deferred_free(frame_index);
+			dsv_desc_heap.process_deferred_free(frame_index);
+			srv_desc_heap.process_deferred_free(frame_index);
+			uav_desc_heap.process_deferred_free(frame_index);
+
+			utl::vector<IUnknown*>& resources{ deferred_releases[frame_index] };
+			if (!resources.empty())
+			{
+				for (auto& resource : resources) release(resource);
+				resources.clear();
+			}
+		}
 	}
 
-
+	namespace detail
+	{
+		void deferred_release(IUnknown* resource)
+		{
+			const u32 frame_index{ current_frame_index() };
+			std::lock_guard lock{ deferred_release_mutex };
+			deferred_releases[frame_index].push_back(resource);
+			set_deferred_release_flag();
+		}
+	}
 
 	bool initialize()
 	{
@@ -238,8 +277,14 @@ namespace primal::graphics::d3d12::core
 		//디버그 레이어 활성화 하려면 컴퓨터에서 설정->선택적 기능 추가->그래픽 도구 가 추가되어있어야함
 		{
 			ComPtr<ID3D12Debug3> debug_interface;
-			DXCall(D3D12GetDebugInterface(IID_PPV_ARGS(&debug_interface)));
-			debug_interface->EnableDebugLayer();
+			if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debug_interface))))
+			{
+				debug_interface->EnableDebugLayer();
+			}
+			else
+			{
+				OutputDebugStringA("디버그 레이어 활성화 하려면 컴퓨터에서 설정->선택적 기능 추가->그래픽 도구 가 추가되어있어야함\n");
+			}
 			dxgi_factory_flags |= DXGI_CREATE_FACTORY_DEBUG;
 		}
 #endif
@@ -271,15 +316,29 @@ namespace primal::graphics::d3d12::core
 		{
 			return failed_init();
 		}
+		bool result{ true };
+		result &= rtv_desc_heap.initialize(512, false);
+		result &= dsv_desc_heap.initialize(512, false);
+		result &= srv_desc_heap.initialize(4096, true);
+		result &= uav_desc_heap.initialize(512, true);
+		if (not result)
+		{
+			return failed_init();
+		}
+
 		new (&gfx_command) d3d12_command(main_device, D3D12_COMMAND_LIST_TYPE_DIRECT);
 		if (!gfx_command.get_command_queue())
 		{
 			return failed_init();
 		}
 
-
-
 		NAME_D3D12_OBJECT(main_device, L"Main Device");
+		NAME_D3D12_OBJECT(rtv_desc_heap.heap(), L"RTV Descriptor Heap");
+		NAME_D3D12_OBJECT(dsv_desc_heap.heap(), L"DSV Descriptor Heap");
+		NAME_D3D12_OBJECT(srv_desc_heap.heap(), L"SRV Descriptor Heap");
+		NAME_D3D12_OBJECT(uav_desc_heap.heap(), L"UAV Descriptor Heap");
+
+
 #ifdef _DEBUG
 		{
 			ComPtr<ID3D12InfoQueue> info_queue;
@@ -297,6 +356,18 @@ namespace primal::graphics::d3d12::core
 	{
 		gfx_command.release();
 		release(dxgi_factory);
+
+		for (u32 i = 0; i < frame_buffer_count; ++i)
+		{
+			process_deferred_releases(i);
+		}
+
+		rtv_desc_heap.release();
+		dsv_desc_heap.release();
+		srv_desc_heap.release();
+		uav_desc_heap.release();
+
+		process_deferred_releases(0);
 
 #ifdef _DEBUG
 		{
@@ -319,10 +390,34 @@ namespace primal::graphics::d3d12::core
 
 		release(main_device);
 	}
+
+	
+
 	void render()
 	{
 		gfx_command.begin_frame();
 		ID3D12GraphicsCommandList6* command_list{ gfx_command.get_command_list() };
+		const u32 frame_index{ current_frame_index() };
+		if (deferred_release_flag[frame_index])
+		{
+			process_deferred_releases(frame_index);
+		}
 		gfx_command.end_frame();
+	}
+
+	ID3D12Device* const device()
+	{
+		return main_device;
+	}
+
+	u32 current_frame_index()
+	{
+		return gfx_command.get_frame_index();
+	}
+
+
+	void set_deferred_release_flag()
+	{
+		deferred_release_flag[current_frame_index()] = 1;
 	}
 }

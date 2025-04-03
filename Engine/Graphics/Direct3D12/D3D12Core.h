@@ -14,4 +14,22 @@ namespace primal::graphics::d3d12::core
 			resource = nullptr;
 		}
 	}
+
+	namespace detail
+	{
+		void deferred_release(IUnknown* resource);
+	}
+
+	template<typename T >
+	constexpr void defered_release(T*& resource)
+	{
+		if (resource)
+		{
+			detail::deferred_release(resource);
+			resource = nullptr;
+		}
+	}
+	ID3D12Device* const device();
+	u32 current_frame_index();
+	void set_deferred_release_flag();
 }

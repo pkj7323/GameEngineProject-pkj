@@ -12,6 +12,7 @@
 #include <array>
 #include <vector>
 #include <functional>
+#include <mutex>
 
 #if defined(_WIN64)
 #include <DirectXMath.h>

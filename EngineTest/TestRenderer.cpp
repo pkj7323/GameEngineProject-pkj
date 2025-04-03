@@ -55,10 +55,10 @@ bool engine_test::init()
 	}
 	platform::window_init_info info[]
 	{
-		{&win_proc, nullptr,L"Test window 1",100,100,400,800},
-		{&win_proc, nullptr,L"Test window 2",150,150,400,400},
-		{&win_proc, nullptr,L"Test window 3",300,200,800,800},
-		{&win_proc, nullptr,L"Test window 4",250,250,400,600},
+		{&win_proc, nullptr,L"Render window 1",100,100,400,800},
+		{&win_proc, nullptr,L"Render window 2",150,150,400,400},
+		{&win_proc, nullptr,L"Render window 3",300,200,800,800},
+		{&win_proc, nullptr,L"Render window 4",250,250,400,600},
 	};
 	static_assert(_countof(info) == _countof(_surfaces));
 	for (u32 i{ 0 }; i < _countof(_surfaces); ++i)
