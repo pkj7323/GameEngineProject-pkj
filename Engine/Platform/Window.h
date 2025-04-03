@@ -7,7 +7,7 @@ namespace primal::platform
 	class window {
 	public:
 		constexpr explicit window(window_id id) : id_{ id } {}
-		constexpr window() : id_{ id::invalid_id } {}
+		constexpr window() = default;
 		constexpr window_id getId() const { return id_; }
 		constexpr bool is_valid() const { return id::is_valid(id_); }
 
@@ -21,7 +21,7 @@ namespace primal::platform
 		u32 get_height() const;
 		bool is_closed() const;
 	private:
-		window_id id_;
+		window_id id_{id::invalid_id};
 	};
 
 	

@@ -1,5 +1,6 @@
 #include "D3D12Core.h"
 #include "D3D12Resources.h"
+#include "D3D12Surface.h"
 
 using namespace Microsoft::WRL;
 namespace primal::graphics::d3d12::core
@@ -352,6 +353,8 @@ namespace primal::graphics::d3d12::core
 #endif
 		return true;
 	}
+
+
 	void shutdown()
 	{
 		gfx_command.release();
@@ -391,7 +394,20 @@ namespace primal::graphics::d3d12::core
 		release(main_device);
 	}
 
-	
+
+	ID3D12Device *const device() { return main_device; }
+
+	descriptor_heap& rtv_heap() { return rtv_desc_heap; }
+
+	descriptor_heap& dsv_heap() { return dsv_desc_heap; }
+
+	descriptor_heap& srv_heap() { return srv_desc_heap; }
+
+	descriptor_heap& uav_heap() { return uav_desc_heap; }
+
+	DXGI_FORMAT default_render_target_format() { return render_target_format; }
+
+	u32 current_frame_index() { return gfx_command.frame_index(); }
 
 	void render()
 	{

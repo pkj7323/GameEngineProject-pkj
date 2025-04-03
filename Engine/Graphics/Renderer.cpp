@@ -22,6 +22,9 @@ namespace primal::graphics
 		}
 
 	}
+
+	
+
 	bool initialize(graphics_platform platform)
 	{
 		return set_platform_interface(platform) && gfx.initialize();
@@ -35,4 +38,40 @@ namespace primal::graphics
 	{
 		gfx.render();
 	}
+
+	surface create_surface(platform::window window)
+	{
+		return gfx.surface.create(window);
+	}
+
+	void remove_surface(surface_id id)
+	{
+		assert(id::is_valid(id));
+		gfx.surface.remove(id);
+	}
+	void surface::resize(u32 width, u32 height) const
+	{
+		assert(id::is_valid(id_));
+		gfx.surface.resize(id_, width, height);
+	}
+
+	u32 surface::width() const
+	{
+		assert(id::is_valid(id_));
+		return gfx.surface.width(id_);
+	}
+
+	u32 surface::height() const
+	{
+		assert(id::is_valid(id_));
+		return gfx.surface.height(id_);
+	}
+
+	void surface::render() const
+	{
+		assert(id::is_valid(id_));
+		gfx.surface.render(id_);
+	}
+
+	
 }
