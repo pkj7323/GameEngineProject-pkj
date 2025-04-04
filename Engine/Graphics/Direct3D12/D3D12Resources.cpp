@@ -54,7 +54,7 @@ namespace primal::graphics::d3d12
 	void descriptor_heap::release()
 	{
 		assert(!size_);
-		core::defered_release(heap_);
+		core::deferred_release(heap_);
 	}
 
 	void descriptor_heap::process_deferred_free(u32 frame_index)
@@ -95,7 +95,7 @@ namespace primal::graphics::d3d12
 		return handle;
 	}
 
-	void descriptor_heap::free(descriptor_handle handle)
+	void descriptor_heap::free(descriptor_handle& handle)
 	{
 		if (not handle.is_valid())
 		{

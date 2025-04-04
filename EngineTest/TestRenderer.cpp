@@ -6,7 +6,7 @@
 
 using namespace primal;
 graphics::render_surface _surfaces[4];
-
+void destroy_render_surface(graphics::render_surface& surface);
 LRESULT win_proc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
@@ -16,11 +16,19 @@ LRESULT win_proc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			bool all_closed{ true };
 			for (u32 i{ 0 }; i < _countof(_surfaces); ++i)
 			{
-				if (!_surfaces[i].window.is_closed())
+				if (_surfaces[i].window.is_valid())
 				{
-					all_closed = false;
-
+					if (_surfaces[i].window.is_closed())
+					{
+						destroy_render_surface(_surfaces[i]);
+					}
+					else
+					{
+						all_closed = false;
+						
+					}
 				}
+				
 			}
 			if (all_closed)
 			{
@@ -37,6 +45,11 @@ LRESULT win_proc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				return 0;
 			}
 			break;
+	case WM_KEYDOWN:
+		if (wParam == VK_ESCAPE)
+		{
+			PostMessage(hWnd, WM_CLOSE, 0, 0);
+		}
 	}
 	return DefWindowProc(hWnd, msg, wParam, lParam);
 }
@@ -44,6 +57,7 @@ LRESULT win_proc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 void create_render_surfaces(graphics::render_surface& surface, platform::window_init_info info)
 {
 	surface.window = platform::create_window(&info);
+	surface.surface = graphics::create_surface(surface.window);
 }
 
 bool engine_test::init()
@@ -51,7 +65,7 @@ bool engine_test::init()
 	bool result{ graphics::initialize(graphics::graphics_platform::direct3d12) };
 	if (not result)
 	{
-		return false;
+		return result;
 	}
 	platform::window_init_info info[]
 	{
@@ -70,21 +84,30 @@ bool engine_test::init()
 void engine_test::run()
 {
 	std::this_thread::sleep_for(std::chrono::milliseconds(10));
-	graphics::render();
+	for (u32 i{ 0 }; i < _countof(_surfaces); ++i)
+	{
+		if (_surfaces[i].surface.is_valid())
+		{
+			_surfaces[i].surface.render();
+		}
+	}
+	
 }
 
 void destroy_render_surface(graphics::render_surface& surface)
 {
-	platform::remove_window(surface.window.getId());
+	graphics::render_surface temp{ surface };
+	surface = {};
+	if (temp.surface.is_valid())graphics::remove_surface(temp.surface.getId());
+	if (temp.surface.is_valid())platform::remove_window(temp.window.getId());
 	
 }
 
 void engine_test::end()
 {
-	for (u32 i = 0; i < _countof(_surfaces); ++i)
-	{
+	for (u32 i{ 0 }; i < _countof(_surfaces); ++i)
 		destroy_render_surface(_surfaces[i]);
-	}
+
 	graphics::shutdown();
 }
 #endif

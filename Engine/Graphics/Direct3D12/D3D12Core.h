@@ -1,12 +1,16 @@
 #pragma once
 #include "D3D12CommonHeader.h"
-#include "D3D12Resources.h"
 
+
+namespace primal::graphics::d3d12
+{
+	class descriptor_heap;
+}
 namespace primal::graphics::d3d12::core
 {
 	bool initialize();
 	void shutdown();
-	void render();
+	
 	template<typename T >
 	constexpr void release(T*& resource)
 	{
@@ -23,7 +27,7 @@ namespace primal::graphics::d3d12::core
 	}
 
 	template<typename T >
-	constexpr void defered_release(T*& resource)
+	constexpr void deferred_release(T*& resource)
 	{
 		if (resource)
 		{
@@ -38,4 +42,13 @@ namespace primal::graphics::d3d12::core
 	descriptor_heap& uav_heap();
 	u32 current_frame_index();
 	void set_deferred_release_flag();
+	DXGI_FORMAT default_render_target_format();
+
+
+	surface create_surface(platform::window window);
+	void remove_surface(surface_id id);
+	void resize_surface(surface_id id, u32 width, u32 height);
+	u32 surface_width(surface_id id);
+	u32 surface_height(surface_id id);
+	void render_surface(surface_id id);
 }

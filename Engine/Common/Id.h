@@ -16,7 +16,7 @@ namespace primal::id
 		constexpr id_type generation_mask{ (id_type{1} << generation_bits) - 1 }; //1000
 	}
 
-	constexpr id_type invalid_id{ static_cast<id_type>(-1)};
+	constexpr id_type invalid_id{ id_type(-1)};
 	constexpr u32 min_deleted_elements{ 1024 };
 	//template<bool condition, class t1, class t2>
 	//struct conditional

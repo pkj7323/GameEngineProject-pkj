@@ -9,7 +9,7 @@ namespace primal::graphics
 	{
 		bool(*initialize)(void);
 		void(*shutdown)(void);
-		void(*render)(void);
+		
 
 		struct 
 		{
@@ -19,8 +19,6 @@ namespace primal::graphics
 			std::function<u32(surface_id)> width;
 			std::function<u32(surface_id)> height;
 			std::function<void(surface_id)> render;
-
-
 		} surface;
 		
 	};

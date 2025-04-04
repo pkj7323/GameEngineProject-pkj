@@ -41,7 +41,7 @@ namespace primal::graphics::d3d12
 		void process_deferred_free(u32 frame_index);
 
 		[[nodiscard]] descriptor_handle allocate();
-		void free(descriptor_handle handle);
+		void free(descriptor_handle& handle);
 
 		constexpr D3D12_DESCRIPTOR_HEAP_TYPE type() const{ return type_; }
 		constexpr D3D12_GPU_DESCRIPTOR_HANDLE gpu_start() const{ return gpu_start_; }
@@ -52,10 +52,10 @@ namespace primal::graphics::d3d12
 		constexpr u32 descriptor_size() const { return descriptor_size_; }
 		constexpr bool is_shader_visible() const{ return gpu_start_.ptr != 0; }
 	private:
-		ID3D12DescriptorHeap*				heap_{ nullptr };
+		ID3D12DescriptorHeap*				heap_;
 		D3D12_GPU_DESCRIPTOR_HANDLE			gpu_start_{};
 		D3D12_CPU_DESCRIPTOR_HANDLE			cpu_start_{};
-		std::unique_ptr<u32[]>				free_handles_{ nullptr };
+		std::unique_ptr<u32[]>				free_handles_{};
 		utl::vector<u32>					deferred_free_indices_[frame_buffer_count]{};
 		std::mutex							mutex_{};
 		u32 								capacity_{ 0 };

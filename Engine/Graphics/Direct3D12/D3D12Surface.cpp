@@ -53,27 +53,62 @@ namespace primal::graphics::d3d12
 		{
 			render_target_data_[i].rtv = core::rtv_heap().allocate();
 		}
-
+		finalize();
 	}
 
 	void d3d12_surface::present() const
 	{
+		assert(swap_chain_);
+		DXCall(swap_chain_->Present(0, 0));
+		current_bb_index = swap_chain_->GetCurrentBackBufferIndex();
 	}
 
 	void d3d12_surface::resize()
 	{
+
 	}
 
-	u32 d3d12_surface::width() const
-	{
-	}
-
-	u32 d3d12_surface::height() const
-	{
-	}
 
 	void d3d12_surface::release()
 	{
+		for (u32 i{0};i<frame_buffer_count;++i)
+		{
+			render_target_data& data{ render_target_data_[i] };
+			core::release(data.resource);
+			core::rtv_heap().free(data.rtv);
+		}
+		core::release(swap_chain_);
+	}
 
+	void d3d12_surface::finalize()
+	{
+		for (u32 i = 0; i < frame_buffer_count; ++i)
+		{
+			render_target_data& data{ render_target_data_[i] };
+			assert(!data.resource);
+			DXCall(swap_chain_->GetBuffer(i, IID_PPV_ARGS(&data.resource)));
+			D3D12_RENDER_TARGET_VIEW_DESC desc{};
+			desc.Format = core::default_render_target_format();
+			desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+			core::device()->CreateRenderTargetView(data.resource, &desc, data.rtv.cpu);
+
+		}
+		DXGI_SWAP_CHAIN_DESC desc{};
+		DXCall(swap_chain_->GetDesc(&desc));
+		const u32 width{ desc.BufferDesc.Width };
+		const u32 height{ desc.BufferDesc.Height };
+		assert(window_.get_width() == width && window_.get_height() == height);
+
+		//set_viewport_and_scissor_rect(width, height);
+		viewport_.TopLeftX = 0.0f;
+		viewport_.TopLeftY = 0.0f;
+		viewport_.Width = static_cast<float>(width);
+		viewport_.Height = static_cast<float>(height);
+		viewport_.MinDepth = 0.0f;
+		viewport_.MaxDepth = 1.0f;
+
+		scissor_rect_ = { 0, 0, static_cast<LONG>(width), static_cast<LONG>(height) };
+
+		
 	}
 }
