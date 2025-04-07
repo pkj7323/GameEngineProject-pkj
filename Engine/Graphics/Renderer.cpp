@@ -47,25 +47,25 @@ namespace primal::graphics
 	}
 	void surface::resize(u32 width, u32 height) const
 	{
-		assert(id::is_valid(id_));
+		assert(is_valid());
 		gfx.surface.resize(id_, width, height);
 	}
 
 	u32 surface::width() const
 	{
-		assert(id::is_valid(id_));
+		assert(is_valid());
 		return gfx.surface.width(id_);
 	}
 
 	u32 surface::height() const
 	{
-		assert(id::is_valid(id_));
+		assert(is_valid());
 		return gfx.surface.height(id_);
 	}
 
 	void surface::render() const
 	{
-		assert(id::is_valid(id_));
+		assert(is_valid());
 		gfx.surface.render(id_);
 	}
 

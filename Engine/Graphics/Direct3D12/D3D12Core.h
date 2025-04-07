@@ -41,7 +41,7 @@ namespace primal::graphics::d3d12::core
 	descriptor_heap& srv_heap();
 	descriptor_heap& uav_heap();
 	u32 current_frame_index();
-	void set_deferred_release_flag();
+	void set_deferred_releases_flag();
 	DXGI_FORMAT default_render_target_format();
 
 

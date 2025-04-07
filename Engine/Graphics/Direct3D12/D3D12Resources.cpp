@@ -112,7 +112,7 @@ namespace primal::graphics::d3d12
 
 		const u32 frame_index{ core::current_frame_index() };
 		deferred_free_indices_[frame_index].push_back(index);
-		core::set_deferred_release_flag();
+		core::set_deferred_releases_flag();
 		handle = {};
 	}
 }

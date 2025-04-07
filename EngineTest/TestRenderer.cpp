@@ -5,7 +5,10 @@
 #ifdef TEST_RENDERER
 
 using namespace primal;
+
 graphics::render_surface _surfaces[4];
+time_it _timer{};
+
 void destroy_render_surface(graphics::render_surface& surface);
 LRESULT win_proc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -83,7 +86,8 @@ bool engine_test::init()
 }
 void engine_test::run()
 {
-	std::this_thread::sleep_for(std::chrono::milliseconds(10));
+	_timer.begin();
+	//std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	for (u32 i{ 0 }; i < _countof(_surfaces); ++i)
 	{
 		if (_surfaces[i].surface.is_valid())
@@ -91,7 +95,7 @@ void engine_test::run()
 			_surfaces[i].surface.render();
 		}
 	}
-	
+	_timer.end();
 }
 
 void destroy_render_surface(graphics::render_surface& surface)

@@ -11,15 +11,15 @@ namespace primal::graphics
 		void(*shutdown)(void);
 		
 
-		struct 
-		{
-			std::function<surface(platform::window)> create;
-			std::function<void(surface_id)> remove;
-			std::function<void(surface_id, u32, u32)> resize;
-			std::function<u32(surface_id)> width;
-			std::function<u32(surface_id)> height;
-			std::function<void(surface_id)> render;
-		} surface;
 		
+		struct
+		{
+			surface(*create)(platform::window);
+			void(*remove)(surface_id);
+			void(*resize)(surface_id, u32, u32);
+			u32(*width)(surface_id);
+			u32(*height)(surface_id);
+			void(*render)(surface_id);
+		} surface;
 	};
 }
